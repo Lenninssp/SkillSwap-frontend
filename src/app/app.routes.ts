@@ -8,6 +8,7 @@ import { SubmitReview } from './features/reviews/pages/submit-review/submit-revi
 import { HomeComponent } from './features/home/home.component';
 import { RegisterComponent } from './features/register/register.component';
 import { LoginComponent } from './features/login/login.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,7 +20,8 @@ export const routes: Routes = [
   { path: 'jobs/:id/review', component: SubmitReview },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'profile/:username', component: ProfileComponent },
+  { path: 'profile', component: ProfileComponent },
   { path: 'my-postings', component: HomeComponent },
   { path: 'my-bids', component: HomeComponent },
-  { path: 'profile', component: HomeComponent },
 ];

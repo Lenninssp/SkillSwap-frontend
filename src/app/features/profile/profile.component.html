@@ -1,0 +1,113 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  @if (isLoading()) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+  } @else if (errorMsg()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-8 rounded-lg text-center">
+      <h3 class="text-lg font-semibold">User Not Found</h3>
+      <p>{{ errorMsg() }}</p>
+      <a routerLink="/" class="mt-4 inline-block text-indigo-600 hover:underline">Go back home</a>
+    </div>
+  } @else if (user()) {
+    <!-- User Profile Header -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="bg-indigo-600 h-32"></div>
+      <div class="px-6 pb-6">
+        <div class="relative flex justify-between">
+          <div class="-mt-16">
+            <div class="h-32 w-32 bg-gray-200 rounded-full border-4 border-white flex items-center justify-center text-4xl font-bold text-gray-500">
+              {{ user()?.name?.charAt(0) }}
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                {{ user()?.completed_jobs }} Jobs Completed
+              </span>
+              @if (user()?.rating_avg) {
+                <span class="flex items-center text-yellow-500 font-bold">
+                  ★ {{ user()?.rating_avg | number:'1.1-1' }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="mt-6">
+          <h1 class="text-3xl font-bold text-gray-900">{{ user()?.name }}</h1>
+          <p class="text-gray-500">@{{ user()?.username }}</p>
+          <div class="mt-4">
+            <h3 class="text-sm font-medium text-gray-500">Bio</h3>
+            <p class="mt-1 text-gray-900">{{ user()?.bio }}</p>
+          </div>
+          <div class="mt-4">
+            <h3 class="text-sm font-medium text-gray-500">Skills</h3>
+            <div class="mt-2 flex flex-wrap gap-2">
+              @for (skill of user()?.skills; track skill) {
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                  {{ skill }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review History Section -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-6">Review History</h2>
+      
+      @if (isLoadingReviews()) {
+        <div class="flex justify-center py-6">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      } @else if (reviews().length === 0) {
+        <p class="text-gray-500 text-center py-6 italic">No reviews yet for this user.</p>
+      } @else {
+        <div class="space-y-6">
+          @for (review of reviews(); track review.id) {
+            <div class="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
+              <div class="flex justify-between items-start">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-yellow-500 font-bold">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        {{ star <= review.rating ? '★' : '☆' }}
+                      }
+                    </span>
+                    <span class="text-sm font-semibold text-gray-900">
+                      {{ review.rating }}/5
+                    </span>
+                  </div>
+                  <p class="mt-2 text-gray-700 italic">"{{ review.comment || 'No written feedback provided.' }}"</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-400">{{ review.created_at | date }}</p>
+                </div>
+              </div>
+              
+              <div class="mt-4 flex items-center justify-between text-sm">
+                @if (review.reviewer) {
+                  <div class="flex items-center text-gray-500">
+                    <span>By:</span>
+                    <a [routerLink]="['/profile', review.reviewer.username]" class="ml-1 text-indigo-600 hover:underline font-medium">
+                      {{ review.reviewer.name }}
+                    </a>
+                  </div>
+                }
+                
+                @if (review.job) {
+                  <div class="text-gray-500">
+                    <span>Job:</span>
+                    <span class="ml-1 font-medium text-gray-900">{{ review.job.title }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
