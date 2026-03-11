@@ -5,5 +5,7 @@ export enum JobCategory {
   DESIGN = "Design",
   SOFTWARE_DEVELOPMENT = "Software Development",
   GENERAL = "general",
+  QA = "QA",
+  TEST = "test",
   OTHER = "Other"
 }

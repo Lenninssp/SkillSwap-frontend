@@ -12,7 +12,7 @@ export class JobService {
 
   // Jobs search page
   searchJobs(filters?: any): Observable<any[]> {
-    return this.http.post<any[]>(`${this.apiUrl}/jobs/search`, filters);
+    return this.http.post<any[]>(`${this.apiUrl}/jobs/search`, filters || {});
   }
 
   // Create job page 
