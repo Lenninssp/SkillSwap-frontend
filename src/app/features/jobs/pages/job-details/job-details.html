@@ -65,24 +65,31 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-4 pt-4">
-          <button *ngIf="jobData.status !== jobStatus.COMPLETED" (click)="onComplete()"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors cursor-pointer">
-            Mark as Completed
-          </button>
+          @if (isOwner() && jobData.status !== jobStatus.COMPLETED) {
+            <button (click)="onComplete()"
+              class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors cursor-pointer">
+              Mark as Completed
+            </button>
+          }
           
-          <a [routerLink]="['/jobs', jobData.id, 'edit']"
-            class="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
-            Edit Job
-          </a>
+          @if (isOwner()) {
+            <a [routerLink]="['/jobs', jobData.id, 'edit']"
+              class="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
+              Edit Job
+            </a>
+          }
 
-          <a *ngIf="jobData.status === jobStatus.COMPLETED" [routerLink]="['/jobs', jobData.id, 'review']"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
-            Submit Review
-          </a>
+          @if (jobData.status === jobStatus.COMPLETED) {
+            <a [routerLink]="['/jobs', jobData.id, 'review']"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
+              Submit Review
+            </a>
+          }
 
-          <a routerLink="/jobs" class="text-gray-500 hover:text-gray-900 font-semibold px-4">
+          <button (click)="goBack()" 
+            class="ml-auto border border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 font-bold py-3 px-8 rounded-lg transition-all cursor-pointer">
             Back to List
-          </a>
+          </button>
         </div>
       </div>
     </div>

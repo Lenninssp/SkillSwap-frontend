@@ -1,5 +1,5 @@
 import { Component, inject, signal, afterNextRender } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JobService } from '../../../../core/services/job/job';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -16,15 +16,15 @@ export class JobDetails {
   private readonly route = inject(ActivatedRoute);
   private readonly jobService = inject(JobService);
   private readonly authService = inject(AuthService);
+  private readonly location = inject(Location);
 
   job = signal<Job | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  isOwner = signal(false);
   jobStatus = JobStatus;
 
   constructor() {
-    // This hook only runs in the browser, after the initial render.
-    // Perfect for clean, token-based API calls.
     afterNextRender(() => {
       const id = this.route.snapshot.paramMap.get('id');
       if (!this.authService.isLoggedIn()) {
@@ -42,7 +42,22 @@ export class JobDetails {
   fetchJobDetails(id: string): void {
     this.jobService.getJobDetails(id).subscribe({
       next: (data) => {
-        this.job.set(Array.isArray(data) ? data[0] : data);
+        const jobData = Array.isArray(data) ? data[0] : data;
+        this.job.set(jobData);
+        
+        const user = this.authService.currentUser();
+        console.log('--- Ownership Diagnostic ---');
+        console.log('Current User Object:', user);
+        console.log('Job Owner ID:', jobData?.owner_id);
+        
+        if (user && jobData) {
+          const match = String(user.id) === String(jobData.owner_id);
+          console.log('ID Match result:', match);
+          this.isOwner.set(match);
+        } else {
+          this.isOwner.set(false);
+        }
+        
         this.loading.set(false);
       },
       error: (err) => {
@@ -59,5 +74,9 @@ export class JobDetails {
     this.jobService.completeJob(currentJob.id).subscribe({
       next: () => this.job.update(j => j ? { ...j, status: JobStatus.COMPLETED } : null)
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

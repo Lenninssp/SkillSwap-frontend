@@ -13,44 +13,50 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-20">
+  <div *ngIf="loading()" class="text-center py-20">
     <p class="text-xl text-gray-500">Loading your postings...</p>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-600 p-6 rounded-xl text-center">
-    <p>{{ error }}</p>
+  <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-600 p-8 rounded-2xl text-center shadow-sm max-w-xl mx-auto">
+    <p class="text-lg font-medium">{{ error() }}</p>
+    <div class="mt-4" *ngIf="error()?.includes('log in')">
+       <a routerLink="/login" class="text-blue-600 font-bold hover:underline">Click here to Login</a>
+    </div>
   </div>
 
   <!-- Content -->
-  <div *ngIf="!loading && !error">
-    <div *ngIf="jobs.length > 0; else emptyState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div *ngFor="let job of jobs" class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start mb-4">
-          <span [ngClass]="{
-            'bg-green-100 text-green-700': job.status === jobStatus.OPEN,
-            'bg-yellow-100 text-yellow-700': job.status === jobStatus.IN_PROGRESS,
-            'bg-gray-100 text-gray-700': job.status === jobStatus.COMPLETED
-          }" class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-            {{ job.status }}
-          </span>
-          <span class="text-sm font-bold text-green-600">${{ job.budget }}</span>
+  <div *ngIf="!loading() && !error()">
+    <div *ngIf="jobs().length > 0; else emptyState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let job of jobs()" class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        
+        <div>
+          <div class="flex justify-between items-center mb-5">
+            <span [ngClass]="{
+              'bg-green-50 text-green-700': job.status === jobStatus.OPEN,
+              'bg-yellow-50 text-yellow-700': job.status === jobStatus.IN_PROGRESS,
+              'bg-gray-50 text-gray-600': job.status === jobStatus.COMPLETED
+            }" class="px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest">
+              {{ job.status }}
+            </span>
+            <span class="text-lg font-black text-gray-900 tracking-tight">${{ job.budget }}</span>
+          </div>
+
+          <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-1">
+            {{ job.title }}
+          </h3>
+          <p class="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
+            {{ job.description }}
+          </p>
         </div>
 
-        <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-1">{{ job.title }}</h3>
-        <p class="text-gray-500 text-sm mb-6 line-clamp-2 flex-grow">{{ job.description }}</p>
-
-        <div class="flex items-center gap-2 pt-4 border-t border-gray-50">
-          <a 
-            [routerLink]="['/jobs', job.id]" 
-            class="flex-1 text-center text-sm font-bold text-blue-600 hover:bg-blue-50 py-2 rounded transition-colors"
-          >
+        <div class="flex items-center gap-3 pt-5 border-t border-gray-50">
+          <a [routerLink]="['/jobs', job.id]" 
+             class="flex-1 bg-gray-900 hover:bg-blue-600 text-white text-center text-xs font-bold py-3 rounded-xl transition-all shadow-sm">
             View
           </a>
-          <a 
-            [routerLink]="['/jobs', job.id, 'edit']" 
-            class="flex-1 text-center text-sm font-bold text-gray-600 hover:bg-gray-50 py-2 rounded transition-colors"
-          >
+          <a [routerLink]="['/jobs', job.id, 'edit']" 
+             class="flex-1 bg-white border border-gray-200 hover:border-blue-600 hover:text-blue-600 text-gray-600 text-center text-xs font-bold py-3 rounded-xl transition-all">
             Edit
           </a>
         </div>

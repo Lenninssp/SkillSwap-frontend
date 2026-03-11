@@ -45,7 +45,6 @@ export class JobsSearch implements OnInit {
     this.jobService.searchJobs().subscribe(data => this.allJobs.set(data));
   }
 
-  // search() is now optional since computed() is reactive, but we keep it for the button
   search(): void {
     console.log('Filters updated. Current count:', this.filteredJobs().length);
   }

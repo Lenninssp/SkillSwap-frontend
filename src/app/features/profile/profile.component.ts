@@ -72,7 +72,7 @@ export class ProfileComponent {
     });
   }
 
-  private loadReviews(userId: number) {
+  private loadReviews(userId: string) {
     this.isLoadingReviews.set(true);
     this.reviewService.getUserReviews(userId).subscribe({
       next: (res) => {

@@ -18,7 +18,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
                 @if (authService.isLoggedIn()) {
-                  <a routerLink="/jobs" routerLinkActive="bg-gray-900 text-white" 
+                  <a routerLink="/jobs" routerLinkActive="bg-gray-900 text-white" [routerLinkActiveOptions]="{exact: true}"
                      class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">Jobs</a>
                   <a routerLink="/jobs/my-postings" routerLinkActive="bg-gray-900 text-white" 
                      class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">My Postings</a>
