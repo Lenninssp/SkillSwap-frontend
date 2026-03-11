@@ -2,24 +2,24 @@ import { JobCategory } from "../enums/job-category.enum";
 import { JobStatus } from "../enums/job-status.enum";
 
 export interface Job {
-  id: number;
+  id: string;
   title: string;
   description: string;
   budget: number;
-  category: JobCategory;
+  category: string;
   status: JobStatus;
-  owner_id?: number;
-  freelancer_id?: number;
+  owner_id?: string;
+  freelancer_id?: string;
 
   owner?: {
-    id: number;
+    id: string;
     username: string;
     name?: string;
     rating_avg?: number;
   }
 
   freelancer?: {
-    id: number;
+    id: string;
     username: string;
     name?: string;
     rating_avg?: number;

@@ -7,4 +7,5 @@ export interface User {
   skills: string[];
   rating_avg?: number;
   completed_jobs?: number;
+  //asd
 }

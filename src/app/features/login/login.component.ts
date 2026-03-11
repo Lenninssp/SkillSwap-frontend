@@ -58,7 +58,7 @@ export class LoginComponent {
           this.alertService.error(res.error);
         } else {
           this.alertService.success('Logged in successfully');
-          this.router.navigate(['/']);
+          this.router.navigate(['/jobs']);
         }
       },
       error: () => {
