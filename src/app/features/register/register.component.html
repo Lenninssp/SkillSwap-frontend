@@ -1,0 +1,130 @@
+<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-6 text-gray-900 text-center">Create Account</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+    <!-- Name -->
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+        [class.border-red-500]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+      />
+      @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+        <p class="mt-1 text-xs text-red-500">Name is required</p>
+      }
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+      <input
+        type="email"
+        id="email"
+        formControlName="email"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+        [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+      />
+      @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        <p class="mt-1 text-xs text-red-500">Valid email is required</p>
+      }
+    </div>
+
+    <!-- Username -->
+    <div>
+      <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+      <input
+        type="text"
+        id="username"
+        formControlName="username"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+        [class.border-red-500]="(registerForm.get('username')?.invalid && registerForm.get('username')?.touched) || suggestedUsername()"
+      />
+      @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+        <p class="mt-1 text-xs text-red-500">Username is required</p>
+      }
+      @if (suggestedUsername()) {
+        <div class="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+          <p class="text-xs text-yellow-700">Username taken. How about <span class="font-bold cursor-pointer underline" (click)="useSuggestedUsername()">{{ suggestedUsername() }}</span>?</p>
+        </div>
+      }
+    </div>
+
+    <!-- Password -->
+    <div>
+      <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+      <input
+        type="password"
+        id="password"
+        formControlName="password"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+        [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+      />
+      @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+        <p class="mt-1 text-xs text-red-500">Password must be at least 6 characters</p>
+      }
+    </div>
+
+    <!-- Bio -->
+    <div>
+      <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+      <textarea
+        id="bio"
+        formControlName="bio"
+        rows="3"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+        [class.border-red-500]="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched"
+      ></textarea>
+      @if (registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched) {
+        <p class="mt-1 text-xs text-red-500">Bio is required</p>
+      }
+    </div>
+
+    <!-- Skills (Chips) -->
+    <div>
+      <label for="skills" class="block text-sm font-medium text-gray-700">Skills (Press Enter to add)</label>
+      <div class="flex flex-wrap gap-2 mb-2 mt-1">
+        @for (skill of skills(); track skill) {
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+            {{ skill }}
+            <button type="button" (click)="removeSkill(skill)" class="ml-1 text-indigo-600 hover:text-indigo-800 focus:outline-none">&times;</button>
+          </span>
+        }
+      </div>
+      <input
+        type="text"
+        id="skills"
+        [value]="skillInput()"
+        (input)="updateSkillInput($event)"
+        (keydown)="addSkill($event)"
+        placeholder="e.g. Angular, TypeScript"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+      />
+    </div>
+
+    <div class="pt-4">
+      <button
+        type="submit"
+        [disabled]="isLoading()"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+      >
+        @if (isLoading()) {
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Registering...
+        } @else {
+          Register
+        }
+      </button>
+    </div>
+  </form>
+
+  <div class="mt-6 text-center text-sm text-gray-600">
+    Already have an account? 
+    <a routerLink="/login" class="font-medium text-indigo-600 hover:text-indigo-500">Log in</a>
+  </div>
+</div>

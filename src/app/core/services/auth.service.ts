@@ -1,10 +1,11 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, catchError, of, Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { ApiError } from '../models/api-error.model';
+import { RegisterData, RegisterResponse, LoginResponse } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -38,13 +39,20 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<{ token: string; user: User } | ApiError> {
-    return this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+  login(email: string, password: string): Observable<LoginResponse | ApiError> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
       tap(response => {
         this.setSession(response.token, response.user);
       }),
-      catchError(err => {
-        console.error('Login error', err);
+      catchError((err: HttpErrorResponse) => {
+        return of(err.error as ApiError);
+      })
+    );
+  }
+
+  register(userData: RegisterData): Observable<RegisterResponse | ApiError> {
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/auth/register`, userData).pipe(
+      catchError((err: HttpErrorResponse) => {
         return of(err.error as ApiError);
       })
     );

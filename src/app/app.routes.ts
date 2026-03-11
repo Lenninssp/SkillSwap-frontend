@@ -6,6 +6,8 @@ import { EditJob } from './features/jobs/pages/edit-job/edit-job';
 import { MyPostings } from './features/jobs/pages/my-postings/my-postings';
 import { SubmitReview } from './features/reviews/pages/submit-review/submit-review';
 import { HomeComponent } from './features/home/home.component';
+import { RegisterComponent } from './features/register/register.component';
+import { LoginComponent } from './features/login/login.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -15,8 +17,8 @@ export const routes: Routes = [
   { path: 'jobs/:id', component: JobDetails },
   { path: 'jobs/:id/edit', component: EditJob },
   { path: 'jobs/:id/review', component: SubmitReview },
-  { path: 'login', component: HomeComponent },
-  { path: 'register', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'my-postings', component: HomeComponent },
   { path: 'my-bids', component: HomeComponent },
   { path: 'profile', component: HomeComponent },
