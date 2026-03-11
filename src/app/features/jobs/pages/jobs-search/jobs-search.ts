@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -13,55 +13,40 @@ import { JobCategory } from '../../../../core/enums/job-category.enum';
   templateUrl: './jobs-search.html',
 })
 export class JobsSearch implements OnInit {
-  allJobs: Job[] = [];
-  jobs: Job[] = [];
+  private readonly jobService = inject(JobService);
+
+  allJobs = signal<Job[]>([]);
   categories = Object.values(JobCategory);
   
   filters = {
-    title: '',
-    category: '',
-    minBudget: null as number | null,
-    maxBudget: null as number | null
+    title: signal(''),
+    category: signal(''),
+    minBudget: signal<number | null>(null),
+    maxBudget: signal<number | null>(null)
   };
 
-  constructor(private jobService: JobService) {}
+  // Modern way to handle filtering: it updates automatically when any signal inside changes!
+  filteredJobs = computed(() => {
+    const title = this.filters.title().toLowerCase();
+    const category = this.filters.category();
+    const min = this.filters.minBudget();
+    const max = this.filters.maxBudget();
+
+    return this.allJobs().filter(job => {
+      const matchTitle = !title || (job.title && job.title.toLowerCase().includes(title));
+      const matchCategory = !category || job.category === category;
+      const matchMin = min === null || job.budget >= min;
+      const matchMax = max === null || job.budget <= max;
+      return matchTitle && matchCategory && matchMin && matchMax;
+    });
+  });
 
   ngOnInit(): void {
-    this.fetchAllJobs();
+    this.jobService.searchJobs().subscribe(data => this.allJobs.set(data));
   }
 
-  fetchAllJobs(): void {
-    this.jobService.searchJobs().subscribe({
-      next: (data) => {
-        this.allJobs = data;
-        this.applyFilters();
-      },
-      error: (err) => {
-        console.error('Error fetching jobs:', err);
-      }
-    });
-  }
-
+  // search() is now optional since computed() is reactive, but we keep it for the button
   search(): void {
-    this.applyFilters();
-  }
-
-  private applyFilters(): void {
-    this.jobs = this.allJobs.filter(job => {
-      const matchTitle = !this.filters.title || 
-        (job.title && job.title.toLowerCase().includes(this.filters.title.toLowerCase()));
-      
-      const matchCategory = !this.filters.category || 
-        job.category === this.filters.category;
-      
-      const matchMinBudget = this.filters.minBudget === null || 
-        job.budget >= this.filters.minBudget;
-      
-      const matchMaxBudget = this.filters.maxBudget === null || 
-        job.budget <= this.filters.maxBudget;
-
-      return matchTitle && matchCategory && matchMinBudget && matchMaxBudget;
-    });
-    console.log('Filtered jobs count:', this.jobs.length);
+    console.log('Filters updated. Current count:', this.filteredJobs().length);
   }
 }

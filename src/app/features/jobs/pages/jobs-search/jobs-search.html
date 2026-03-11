@@ -8,9 +8,9 @@
       <input 
         type="text" 
         id="title" 
-        [(ngModel)]="filters.title" 
+        [ngModel]="filters.title()"
+        (ngModelChange)="filters.title.set($event)"
         placeholder="e.g. Web Developer" 
-        (keyup.enter)="search()"
         class="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
       >
     </div>
@@ -19,7 +19,8 @@
       <label for="category" class="text-sm font-semibold text-gray-600">Category</label>
       <select 
         id="category" 
-        [(ngModel)]="filters.category"
+        [ngModel]="filters.category()"
+        (ngModelChange)="filters.category.set($event)"
         class="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
       >
         <option value="">All Categories</option>
@@ -32,7 +33,8 @@
       <input 
         type="number" 
         id="minBudget" 
-        [(ngModel)]="filters.minBudget" 
+        [ngModel]="filters.minBudget()"
+        (ngModelChange)="filters.minBudget.set($event)"
         placeholder="Min"
         class="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
       >
@@ -43,25 +45,19 @@
       <input 
         type="number" 
         id="maxBudget" 
-        [(ngModel)]="filters.maxBudget" 
+        [ngModel]="filters.maxBudget()"
+        (ngModelChange)="filters.maxBudget.set($event)"
         placeholder="Max"
         class="p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
       >
     </div>
-
-    <button 
-      (click)="search()" 
-      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-md transition-colors shadow-sm"
-    >
-      Search
-    </button>
   </section>
 
   <hr class="mb-8 border-gray-200">
 
   <!-- Jobs List -->
-  <div class="flex flex-col gap-6" *ngIf="jobs.length > 0; else noJobs">
-    <div *ngFor="let job of jobs" class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+  <div class="flex flex-col gap-6" *ngIf="filteredJobs().length > 0; else noJobs">
+    <div *ngFor="let job of filteredJobs()" class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-4">
         <h3 class="text-xl font-bold text-gray-900">{{ job.title }}</h3>
         <span class="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-gray-200">
@@ -79,7 +75,7 @@
         </span>
         <a 
           [routerLink]="['/jobs', job.id]" 
-          class="inline-block border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-2 px-5 rounded-md transition-all"
+          class="inline-block border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-2 px-5 rounded-lg transition-all"
         >
           View Details
         </a>
