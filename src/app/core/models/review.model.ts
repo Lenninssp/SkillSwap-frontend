@@ -9,4 +9,14 @@ export interface Review {
   comment?: string;
 
   created_at?: string;
+
+  reviewer?: {
+    id: number;
+    name: string;
+    username: string;
+  };
+  job?: {
+    id: number;
+    title: string;
+  };
 }
