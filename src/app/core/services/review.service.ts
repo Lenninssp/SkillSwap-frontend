@@ -12,7 +12,7 @@ export class ReviewService {
   private readonly apiUrl = environment.apiUrl;
   private readonly http = inject(HttpClient);
 
-  getUserReviews(userId: number): Observable<Review[] | ApiError> {
+  getUserReviews(userId: string): Observable<Review[] | ApiError> {
     return this.http.get<Review[]>(`${this.apiUrl}/reviews/user/${userId}`).pipe(
       catchError((err: HttpErrorResponse) => {
         return of(err.error as ApiError);
