@@ -32,9 +32,13 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
+      console.log('Loading session - token exists:', !!token);
       if (token && userStr) {
         this.tokenSignal.set(token);
         this.userSignal.set(JSON.parse(userStr));
+        console.log('Session successfully restored.');
+      } else {
+        console.warn('No token or user found in localStorage.');
       }
     }
   }

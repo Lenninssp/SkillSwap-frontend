@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { AlertComponent } from './shared/components/alert/alert.component';
 
@@ -8,7 +8,6 @@ import { AlertComponent } from './shared/components/alert/alert.component';
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, AlertComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('skillswap-frontend');
