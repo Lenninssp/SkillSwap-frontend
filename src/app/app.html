@@ -1,27 +1,46 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16 items-center">
+      <div class="flex items-center">
+        <a routerLink="/" class="text-2xl font-black text-blue-600 tracking-tighter">
+          SkillSwap
+        </a>
+        <div class="hidden md:ml-10 md:flex md:space-x-8">
+          <a 
+            routerLink="/jobs" 
+            routerLinkActive="text-blue-600 border-blue-600" 
+            [routerLinkActiveOptions]="{exact: true}"
+            class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-bold text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all"
+          >
+            Find Jobs
+          </a>
+          <a 
+            routerLink="/jobs/my-postings" 
+            routerLinkActive="text-blue-600 border-blue-600"
+            class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-bold text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all"
+          >
+            My Postings
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a 
+          routerLink="/jobs/create" 
+          class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-5 rounded-lg shadow-sm transition-colors"
+        >
+          Post a Job
+        </a>
+      </div>
+    </div>
+  </nav>
+</header>
 
-
-
-<main class="main">
-  <div class="w-full h-screen items-center flex flex-row  justify-center bg-black">
-    <div class="text-white">Best fucking angular project evar</div>
-  </div>
+<main class="min-h-screen bg-white">
+  <router-outlet></router-outlet>
 </main>
 
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
-
-<router-outlet />
+<footer class="bg-gray-50 border-t border-gray-200 py-12">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <p class="text-gray-400 text-sm">© 2026 SkillSwap Platform. All rights reserved.</p>
+  </div>
+</footer>

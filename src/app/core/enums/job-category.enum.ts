@@ -1,7 +1,9 @@
 // this one may change in the future because i dont know if this are the correct status
 
 export enum JobCategory {
-  TECH = "tech",
-  ADMINISTRATION = "administration",
-  PLUMBER = "plumber",
+  WEB_DEVELOPMENT = "Web Development",
+  DESIGN = "Design",
+  SOFTWARE_DEVELOPMENT = "Software Development",
+  GENERAL = "general",
+  OTHER = "Other"
 }
