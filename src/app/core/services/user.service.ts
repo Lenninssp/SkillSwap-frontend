@@ -19,4 +19,13 @@ export class UserService {
       })
     );
   }
+
+  getUserById(userId: string): Observable<User | ApiError> {
+    // Fallback to the known working users endpoint
+    return this.http.get<User>(`${this.apiUrl}/users/${userId}`).pipe(
+      catchError((err: HttpErrorResponse) => {
+        return of(err.error as ApiError);
+      })
+    );
+  }
 }

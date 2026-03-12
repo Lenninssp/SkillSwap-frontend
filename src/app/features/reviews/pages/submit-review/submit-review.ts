@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReviewService } from '../../../../core/services/review/review';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-submit-review',
@@ -10,45 +11,51 @@ import { ReviewService } from '../../../../core/services/review/review';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './submit-review.html',
 })
-export class SubmitReview implements OnInit {
-  jobId: string | null = null;
-  
-  reviewData = {
-    rating: 5,
-    comment: ''
-  };
+export class SubmitReview {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly reviewService = inject(ReviewService);
+  private readonly authService = inject(AuthService);
 
-  submitting = false;
-  error: string | null = null;
+  jobId = signal<string | null>(null);
+  rating = signal(5);
+  comment = signal('');
+  submitting = signal(false);
+  error = signal<string | null>(null);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private reviewService: ReviewService
-  ) {}
-
-  ngOnInit(): void {
-    this.jobId = this.route.snapshot.paramMap.get('id');
+  constructor() {
+    afterNextRender(() => {
+      this.jobId.set(this.route.snapshot.paramMap.get('id'));
+      
+      if (!this.authService.isLoggedIn()) {
+        this.error.set('Please log in to submit a review.');
+      }
+    });
   }
 
   setRating(r: number): void {
-    this.reviewData.rating = r;
+    this.rating.set(r);
   }
 
   onSubmit(): void {
-    if (!this.jobId) return;
+    const id = this.jobId();
+    if (!id || this.submitting()) return;
 
-    this.submitting = true;
-    this.error = null;
+    this.submitting.set(true);
+    this.error.set(null);
 
-    this.reviewService.submitReview(this.jobId, this.reviewData).subscribe({
+    const reviewData = {
+      rating: this.rating(),
+      comment: this.comment()
+    };
+
+    this.reviewService.submitReview(id, reviewData).subscribe({
       next: () => {
-        this.router.navigate(['/jobs', this.jobId]);
+        this.router.navigate(['/jobs', id]);
       },
       error: (err) => {
-        this.error = 'Failed to submit review.';
-        this.submitting = false;
-        console.error('Error submitting review:', err);
+        this.error.set('Failed to submit review.');
+        this.submitting.set(false);
       }
     });
   }

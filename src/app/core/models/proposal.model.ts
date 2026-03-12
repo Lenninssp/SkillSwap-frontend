@@ -1,7 +1,7 @@
 export interface Proposal {
-  id: number;
-  job_id: number;
-  user_id: number;
+  id: string;
+  job_id: string;
+  freelancer_id: string;
 
   price: number;
   cover_letter?: string;
@@ -10,7 +10,7 @@ export interface Proposal {
   status?: 'pending' | 'accepted' | 'rejected';
 
   bidder?: {
-    id: number;
+    id: string;
     username: string;
     name?: string;
     rating_avg?: number;

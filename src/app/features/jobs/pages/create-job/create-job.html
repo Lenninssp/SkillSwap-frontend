@@ -6,8 +6,8 @@
 
   <form (ngSubmit)="onSubmit()" #jobForm="ngForm" class="space-y-6">
     <!-- Error Message -->
-    <div *ngIf="error" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-      {{ error }}
+    <div *ngIf="error()" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+      {{ error() }}
     </div>
 
     <!-- Title -->
@@ -17,7 +17,8 @@
         type="text" 
         id="title" 
         name="title"
-        [(ngModel)]="jobData.title" 
+        [ngModel]="jobData.title()" 
+        (ngModelChange)="jobData.title.set($event)"
         required
         placeholder="e.g. Build a Responsive Portfolio Website"
         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -30,7 +31,8 @@
       <select 
         id="category" 
         name="category"
-        [(ngModel)]="jobData.category"
+        [ngModel]="jobData.category()" 
+        (ngModelChange)="jobData.category.set($event)"
         required
         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white transition-all"
       >
@@ -46,7 +48,8 @@
         type="number" 
         id="budget" 
         name="budget"
-        [(ngModel)]="jobData.budget" 
+        [ngModel]="jobData.budget()" 
+        (ngModelChange)="jobData.budget.set($event)"
         required
         min="1"
         placeholder="Enter your budget"
@@ -60,7 +63,8 @@
       <textarea 
         id="description" 
         name="description"
-        [(ngModel)]="jobData.description" 
+        [ngModel]="jobData.description()" 
+        (ngModelChange)="jobData.description.set($event)"
         required
         rows="6"
         placeholder="Explain what needs to be done..."
@@ -72,10 +76,10 @@
     <div class="flex items-center gap-4 pt-4">
       <button 
         type="submit" 
-        [disabled]="!jobForm.form.valid || submitting"
+        [disabled]="!jobForm.form.valid || submitting()"
         class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 rounded-lg transition-colors shadow-sm cursor-pointer"
       >
-        {{ submitting ? 'Posting...' : 'Post Job Now' }}
+        {{ submitting() ? 'Posting...' : 'Post Job Now' }}
       </button>
       <a 
         routerLink="/jobs" 

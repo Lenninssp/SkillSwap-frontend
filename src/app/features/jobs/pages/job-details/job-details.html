@@ -64,14 +64,39 @@
           </div>
         </div>
 
+        @if (jobData.freelancer || jobData.freelancer_id) {
+          <div class="bg-blue-50 rounded-xl p-6 flex items-center gap-4 border border-blue-100">
+            <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+              {{ (jobData.freelancer?.username || 'F').charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <p class="text-sm text-blue-600 font-semibold uppercase tracking-wider">Freelancer Assigned</p>
+              <p class="font-bold text-gray-900">{{ jobData.freelancer?.username || 'Freelancer (' + (jobData.freelancer_id?.slice(-4) || 'Assigned') + ')' }}</p>
+              @if (jobData.freelancer?.rating_avg) {
+                <div class="flex items-center gap-1 mt-0.5">
+                  <span class="text-yellow-500 text-sm">★</span>
+                  <span class="text-sm font-medium text-gray-700">{{ jobData.freelancer?.rating_avg }} / 5</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <div class="flex flex-wrap items-center gap-4 pt-4">
-          @if (isOwner() && jobData.status !== jobStatus.COMPLETED) {
+          @if (isOwner() && jobData.status === jobStatus.IN_PROGRESS) {
             <button (click)="onComplete()"
               class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors cursor-pointer">
               Mark as Completed
             </button>
           }
           
+          @if (jobData.status === jobStatus.COMPLETED) {
+            <a [routerLink]="['/jobs', jobData.id, 'review']"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
+              Submit Review
+            </a>
+          }
+
           @if (isOwner()) {
             <a [routerLink]="['/jobs', jobData.id, 'edit']"
               class="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
@@ -79,11 +104,13 @@
             </a>
           }
 
-          @if (jobData.status === jobStatus.COMPLETED) {
-            <a [routerLink]="['/jobs', jobData.id, 'review']"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
-              Submit Review
-            </a>
+          @if (!isOwner() && jobData.status === jobStatus.OPEN) {
+            <button (click)="!hasApplied() && showApplyForm.set(true)"
+              [disabled]="hasApplied()"
+              [ngClass]="hasApplied() ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm'"
+              class="font-bold py-3 px-8 rounded-lg transition-colors">
+              {{ hasApplied() ? 'Applied' : 'Apply for this Job' }}
+            </button>
           }
 
           <button (click)="goBack()" 
@@ -93,5 +120,61 @@
         </div>
       </div>
     </div>
+
+    <!-- Apply Form (Non-Owners Only) -->
+    @if (showApplyForm()) {
+      <div class="mt-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Submit Your Proposal</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Your Bid Amount ($)</label>
+            <input type="number" [ngModel]="bidAmount()" (ngModelChange)="bidAmount.set($event)"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Message to Owner</label>
+            <textarea [ngModel]="bidMessage()" (ngModelChange)="bidMessage.set($event)" rows="4"
+              placeholder="Why are you the best fit for this job?"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+          </div>
+          <div class="flex gap-4">
+            <button (click)="onApply()" [disabled]="submittingProposal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition-colors cursor-pointer disabled:bg-blue-300">
+              {{ submittingProposal() ? 'Submitting...' : 'Send Proposal' }}
+            </button>
+            <button (click)="showApplyForm.set(false)"
+              class="text-gray-500 font-semibold px-4 hover:text-gray-900">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Proposals Section (Owner Only) -->
+    @if (isOwner() && (jobData.status === jobStatus.OPEN || (jobData.status === jobStatus.IN_PROGRESS && !jobData.freelancer)) && proposals().length > 0) {
+      <div class="mt-8 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 border-b border-gray-100 p-6">
+          <h2 class="text-xl font-bold text-gray-900 tracking-tight">Received Proposals</h2>
+        </div>
+        <div class="divide-y divide-gray-100">
+          @for (p of proposals(); track p.id) {
+            <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-bold text-gray-900">{{ p.bidder?.username || 'Freelancer' }}</span>
+                  <span class="text-sm font-black text-green-600 tracking-tighter">${{ p.price }}</span>
+                </div>
+                <p class="text-gray-500 text-sm italic">"{{ p.message || p.cover_letter || 'No message provided' }}"</p>
+              </div>
+              <button (click)="onAcceptProposal(p.id, p.freelancer_id)"
+                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-6 rounded-lg shadow-sm transition-colors cursor-pointer">
+                Accept Bid
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
   }
 </div>

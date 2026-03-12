@@ -5,14 +5,14 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-10">
+  <div *ngIf="loading()" class="text-center py-10">
     <p class="text-gray-500">Loading job data...</p>
   </div>
 
-  <form *ngIf="!loading" (ngSubmit)="onSubmit()" #jobForm="ngForm" class="space-y-6">
+  <form *ngIf="!loading() && !error()" (ngSubmit)="onSubmit()" #jobForm="ngForm" class="space-y-6">
     <!-- Error Message -->
-    <div *ngIf="error" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-      {{ error }}
+    <div *ngIf="error()" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+      {{ error() }}
     </div>
 
     <!-- Title -->
@@ -77,17 +77,24 @@
     <div class="flex items-center gap-4 pt-4">
       <button 
         type="submit" 
-        [disabled]="!jobForm.form.valid || submitting"
+        [disabled]="!jobForm.form.valid || submitting()"
         class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-400 text-white font-bold py-3 rounded-lg transition-colors shadow-sm cursor-pointer"
       >
-        {{ submitting ? 'Saving...' : 'Update Job' }}
+        {{ submitting() ? 'Saving...' : 'Update Job' }}
       </button>
-      <a 
-        [routerLink]="['/jobs', jobId]" 
-        class="px-6 py-3 text-gray-600 font-semibold hover:text-gray-900 transition-colors"
+      <button 
+        type="button"
+        (click)="goBack()" 
+        class="px-6 py-3 text-gray-600 font-semibold hover:text-gray-900 transition-colors cursor-pointer"
       >
         Cancel
-      </a>
+      </button>
     </div>
   </form>
+
+  <!-- Error View -->
+  <div *ngIf="error() && !submitting()" class="text-center py-10">
+     <p class="text-red-600 font-bold mb-4">{{ error() }}</p>
+     <a routerLink="/jobs" class="text-blue-600 hover:underline font-bold">Back to Jobs</a>
+  </div>
 </div>
