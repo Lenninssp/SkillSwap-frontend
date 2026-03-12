@@ -1,14 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
-  private apiUrl = 'https://stingray-app-wxhhn.ondigitalocean.app'; // 
-
-  constructor(private http: HttpClient) {}
+  private readonly apiUrl = environment.apiUrl;
+  private readonly http = inject(HttpClient);
 
   // Jobs search page
   searchJobs(filters?: any): Observable<any[]> {
@@ -38,5 +38,18 @@ export class JobService {
   // Complete job action
   completeJob(jobId: string): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/jobs/${jobId}/complete`, {});
+  }
+
+  // Proposals
+  getProposals(jobId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/jobs/${jobId}/proposals`);
+  }
+
+  acceptProposal(proposalId: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/proposals/${proposalId}/accept`, {});
+  }
+
+  submitProposal(jobId: string, proposalData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/jobs/${jobId}/proposals`, proposalData);
   }
 }

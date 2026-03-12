@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,45 +12,42 @@ import { JobCategory } from '../../../../core/enums/job-category.enum';
   templateUrl: './create-job.html',
 })
 export class CreateJob {
+  private readonly jobService = inject(JobService);
+  private readonly router = inject(Router);
+
   categories = Object.values(JobCategory);
   
   jobData = {
-    title: '',
-    description: '',
-    budget: null,
-    category: ''
+    title: signal(''),
+    description: signal(''),
+    budget: signal<number | null>(null),
+    category: signal('')
   };
 
-  submitting = false;
-  error: string | null = null;
-
-  constructor(
-    private jobService: JobService,
-    private router: Router
-  ) {}
+  submitting = signal(false);
+  error = signal<string | null>(null);
 
   onSubmit(): void {
-    if (this.submitting) return;
+    if (this.submitting()) return;
     
-    this.submitting = true;
-    this.error = null;
+    this.submitting.set(true);
+    this.error.set(null);
 
-    console.log('Sending job data:', this.jobData);
+    const data = {
+      title: this.jobData.title(),
+      description: this.jobData.description(),
+      budget: this.jobData.budget(),
+      category: this.jobData.category()
+    };
 
-    this.jobService.createJob(this.jobData).subscribe({
+    this.jobService.createJob(data).subscribe({
       next: (response) => {
-        console.log('Job created successfully:', response);
-        this.submitting = false;
-        if (response && response.id) {
-          this.router.navigate(['/jobs', response.id]);
-        } else {
-          this.router.navigate(['/jobs']);
-        }
+        this.submitting.set(false);
+        this.router.navigate(['/jobs', response.id || '']);
       },
       error: (err) => {
-        this.error = 'Failed to create job. Please check your inputs.';
-        this.submitting = false;
-        console.error('Error creating job:', err);
+        this.error.set('Failed to create job. Please check your inputs.');
+        this.submitting.set(false);
       }
     });
   }

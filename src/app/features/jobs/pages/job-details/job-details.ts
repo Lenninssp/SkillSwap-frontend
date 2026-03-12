@@ -1,28 +1,41 @@
 import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { JobService } from '../../../../core/services/job/job';
 import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import { Job } from '../../../../core/models/job.model';
+import { User } from '../../../../core/models/user.model';
+import { Proposal } from '../../../../core/models/proposal.model';
 import { JobStatus } from '../../../../core/enums/job-status.enum';
 
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './job-details.html',
 })
 export class JobDetails {
   private readonly route = inject(ActivatedRoute);
   private readonly jobService = inject(JobService);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly location = inject(Location);
 
   job = signal<Job | null>(null);
+  proposals = signal<Proposal[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   isOwner = signal(false);
+  hasApplied = signal(false);
   jobStatus = JobStatus;
+
+  // For applying to jobs
+  showApplyForm = signal(false);
+  bidAmount = signal<number>(0);
+  bidMessage = signal('');
+  submittingProposal = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -44,18 +57,17 @@ export class JobDetails {
       next: (data) => {
         const jobData = Array.isArray(data) ? data[0] : data;
         this.job.set(jobData);
+        this.bidAmount.set(jobData.budget);
         
         const user = this.authService.currentUser();
-        console.log('--- Ownership Diagnostic ---');
-        console.log('Current User Object:', user);
-        console.log('Job Owner ID:', jobData?.owner_id);
-        
         if (user && jobData) {
           const match = String(user.id) === String(jobData.owner_id);
-          console.log('ID Match result:', match);
           this.isOwner.set(match);
-        } else {
-          this.isOwner.set(false);
+          
+          // Only fetch proposals if owner (API returns 403 for others)
+          if (match) {
+            this.fetchProposals(id);
+          }
         }
         
         this.loading.set(false);
@@ -67,12 +79,101 @@ export class JobDetails {
     });
   }
 
+  fetchProposals(jobId: string): void {
+    this.jobService.getProposals(jobId).subscribe({
+      next: (data) => {
+        this.proposals.set(data);
+        
+        const currentJob = this.job();
+        if (currentJob && currentJob.status === JobStatus.IN_PROGRESS && !currentJob.freelancer) {
+          const accepted = data.find(p => p.status === 'accepted' || p.status === 'Accepted');
+          const targetProposal = accepted || (data.length === 1 ? data[0] : null);
+
+          if (targetProposal && targetProposal.freelancer_id) {
+            this.userService.getUserById(targetProposal.freelancer_id).subscribe(res => {
+              if (!('error' in res)) {
+                const userData = res as User;
+                this.job.update(j => j ? { 
+                  ...j, 
+                  freelancer: {
+                    id: userData.id,
+                    username: userData.username,
+                    name: userData.name,
+                    rating_avg: userData.rating_avg
+                  }, 
+                  freelancer_id: targetProposal.freelancer_id 
+                } : null);
+              }
+            });
+          }
+        }
+      },
+      error: (err) => {
+        // Silently handle 403 (not Owner)
+        if (err.status !== 403) {
+          console.error('Error fetching proposals:', err);
+        }
+      }
+    });
+  }
+
+  onAcceptProposal(proposalId: string, freelancerId: string): void {
+    const currentJob = this.job();
+    if (!currentJob) return;
+
+    this.jobService.acceptProposal(proposalId).subscribe({
+      next: () => {
+        this.fetchJobDetails(currentJob.id);
+        this.proposals.set([]);
+      },
+      error: (err) => {
+        console.error('Error accepting proposal:', err);
+        const msg = err.error?.error || 'Failed to accept bid';
+        alert(`API Error: ${msg}`);
+      }
+    });
+  }
+
+  onApply(): void {
+    const currentJob = this.job();
+    if (!currentJob || this.submittingProposal()) return;
+
+    this.submittingProposal.set(true);
+    this.jobService.submitProposal(currentJob.id, {
+      price: this.bidAmount(),
+      message: this.bidMessage()
+    }).subscribe({
+      next: () => {
+        alert('Proposal submitted successfully!');
+        this.showApplyForm.set(false);
+        this.submittingProposal.set(false);
+        this.hasApplied.set(true);
+      },
+      error: (err) => {
+        console.error('Error submitting proposal:', err);
+        if (err.status === 409) {
+          this.hasApplied.set(true);
+          this.showApplyForm.set(false);
+          alert('You have already submitted a proposal for this job.');
+        } else {
+          alert(`Error: ${err.error?.error || 'Failed to submit proposal'}`);
+        }
+        this.submittingProposal.set(false);
+      }
+    });
+  }
+
   onComplete(): void {
     const currentJob = this.job();
     if (!currentJob) return;
     
     this.jobService.completeJob(currentJob.id).subscribe({
-      next: () => this.job.update(j => j ? { ...j, status: JobStatus.COMPLETED } : null)
+      next: () => this.job.update(j => j ? { ...j, status: JobStatus.COMPLETED } : null),
+      error: (err) => {
+        console.error('Error completing job:', err);
+        const msg = err.error?.error || 'Failed to complete job';
+        alert(`API Error: ${msg}`);
+      }
     });
   }
 

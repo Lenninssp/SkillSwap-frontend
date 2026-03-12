@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobService } from '../../../../core/services/job/job';
+import { AuthService } from '../../../../core/services/auth.service';
 import { JobCategory } from '../../../../core/enums/job-category.enum';
 
 @Component({
@@ -11,8 +12,14 @@ import { JobCategory } from '../../../../core/enums/job-category.enum';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './edit-job.html',
 })
-export class EditJob implements OnInit {
-  jobId: string | null = null;
+export class EditJob {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly jobService = inject(JobService);
+  private readonly authService = inject(AuthService);
+  private readonly location = inject(Location);
+
+  jobId = signal<string | null>(null);
   categories = Object.values(JobCategory);
   
   jobData = {
@@ -22,58 +29,77 @@ export class EditJob implements OnInit {
     category: ''
   };
 
-  loading = true;
-  submitting = false;
-  error: string | null = null;
+  loading = signal(true);
+  submitting = signal(false);
+  error = signal<string | null>(null);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private jobService: JobService
-  ) {}
+  constructor() {
+    afterNextRender(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      this.jobId.set(id);
 
-  ngOnInit(): void {
-    this.jobId = this.route.snapshot.paramMap.get('id');
-    if (this.jobId) {
-      this.fetchJobDetails(this.jobId);
-    }
+      if (!this.authService.isLoggedIn()) {
+        this.error.set('Please log in to edit this job.');
+        this.loading.set(false);
+        return;
+      }
+
+      if (id) {
+        this.fetchJobDetails(id);
+      } else {
+        this.error.set('Job ID not found.');
+        this.loading.set(false);
+      }
+    });
   }
 
   fetchJobDetails(id: string): void {
-    this.loading = true;
     this.jobService.getJobDetails(id).subscribe({
       next: (data) => {
+        const job = Array.isArray(data) ? data[0] : data;
+        
+        // Ownership check
+        const user = this.authService.currentUser();
+        if (user && String(job.owner_id) !== String(user.id)) {
+          this.error.set('You are not authorized to edit this job.');
+          this.loading.set(false);
+          return;
+        }
+
         this.jobData = {
-          title: data.title,
-          description: data.description,
-          budget: data.budget,
-          category: data.category
+          title: job.title,
+          description: job.description,
+          budget: job.budget,
+          category: job.category
         };
-        this.loading = false;
+        this.loading.set(false);
       },
       error: (err) => {
-        this.error = 'Failed to load job details.';
-        this.loading = false;
-        console.error('Error fetching job details:', err);
+        this.error.set('Failed to load job details.');
+        this.loading.set(false);
       }
     });
   }
 
   onSubmit(): void {
-    if (!this.jobId) return;
+    const id = this.jobId();
+    if (!id || this.submitting()) return;
 
-    this.submitting = true;
-    this.error = null;
+    this.submitting.set(true);
+    this.error.set(null);
 
-    this.jobService.updateJob(this.jobId, this.jobData).subscribe({
+    this.jobService.updateJob(id, this.jobData).subscribe({
       next: () => {
-        this.router.navigate(['/jobs', this.jobId]);
+        this.router.navigate(['/jobs', id]);
       },
       error: (err) => {
-        this.error = 'Failed to update job. Please check your inputs.';
-        this.submitting = false;
-        console.error('Error updating job:', err);
+        this.error.set('Failed to update job. Please check your inputs.');
+        this.submitting.set(false);
       }
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

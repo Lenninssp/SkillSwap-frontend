@@ -6,8 +6,8 @@
 
   <form (ngSubmit)="onSubmit()" #reviewForm="ngForm" class="space-y-8">
     <!-- Error Message -->
-    <div *ngIf="error" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-      {{ error }}
+    <div *ngIf="error()" class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+      {{ error() }}
     </div>
 
     <!-- Rating -->
@@ -19,16 +19,16 @@
           *ngFor="let star of [1,2,3,4,5]"
           (click)="setRating(star)"
           class="text-4xl transition-transform hover:scale-110 focus:outline-none"
-          [ngClass]="reviewData.rating >= star ? 'text-yellow-400' : 'text-gray-200'"
+          [ngClass]="rating() >= star ? 'text-yellow-400' : 'text-gray-200'"
         >
           ★
         </button>
       </div>
       <p class="text-sm font-bold text-gray-600">
-        {{ reviewData.rating === 1 ? 'Poor' : 
-           reviewData.rating === 2 ? 'Fair' : 
-           reviewData.rating === 3 ? 'Good' : 
-           reviewData.rating === 4 ? 'Very Good' : 'Excellent' }}
+        {{ rating() === 1 ? 'Poor' : 
+           rating() === 2 ? 'Fair' : 
+           rating() === 3 ? 'Good' : 
+           rating() === 4 ? 'Very Good' : 'Excellent' }}
       </p>
     </div>
 
@@ -38,7 +38,8 @@
       <textarea 
         id="comment" 
         name="comment"
-        [(ngModel)]="reviewData.comment" 
+        [ngModel]="comment()"
+        (ngModelChange)="comment.set($event)"
         rows="5"
         placeholder="What did you like? What could be improved?"
         class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
@@ -49,13 +50,13 @@
     <div class="flex flex-col gap-4">
       <button 
         type="submit" 
-        [disabled]="submitting"
+        [disabled]="submitting()"
         class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-4 rounded-xl transition-colors shadow-sm cursor-pointer"
       >
-        {{ submitting ? 'Submitting...' : 'Post Review' }}
+        {{ submitting() ? 'Submitting...' : 'Post Review' }}
       </button>
       <a 
-        [routerLink]="['/jobs', jobId]" 
+        [routerLink]="['/jobs', jobId()]" 
         class="text-center text-gray-500 font-semibold hover:text-gray-900 transition-colors"
       >
         Go Back

@@ -46,6 +46,5 @@ export class JobsSearch implements OnInit {
   }
 
   search(): void {
-    console.log('Filters updated. Current count:', this.filteredJobs().length);
   }
 }
