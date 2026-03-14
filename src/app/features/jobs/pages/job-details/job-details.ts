@@ -29,9 +29,10 @@ export class JobDetails {
   error = signal<string | null>(null);
   isOwner = signal(false);
   hasApplied = signal(false);
+  appliedProposalId = signal<string | null>(null);
   jobStatus = JobStatus;
 
-  // For applying to jobs
+  // Job application state
   showApplyForm = signal(false);
   bidAmount = signal<number>(0);
   bidMessage = signal('');
@@ -64,9 +65,11 @@ export class JobDetails {
           const match = String(user.id) === String(jobData.owner_id);
           this.isOwner.set(match);
           
-          // Only fetch proposals if owner (API returns 403 for others)
           if (match) {
             this.fetchProposals(id);
+          } else {
+            // Check if current user has already applied
+            this.fetchMyBids(id);
           }
         }
         
@@ -108,12 +111,20 @@ export class JobDetails {
           }
         }
       },
-      error: (err) => {
-        // Silently handle 403 (not Owner)
-        if (err.status !== 403) {
-          console.error('Error fetching proposals:', err);
+      error: (err) => {}
+    });
+  }
+
+  fetchMyBids(jobId: string): void {
+    this.jobService.getMyBids().subscribe({
+      next: (bids) => {
+        const myBid = bids.find(b => String(b.job_id) === String(jobId));
+        if (myBid) {
+          this.hasApplied.set(true);
+          this.appliedProposalId.set(myBid.id);
         }
-      }
+      },
+      error: (err) => {}
     });
   }
 
@@ -127,7 +138,6 @@ export class JobDetails {
         this.proposals.set([]);
       },
       error: (err) => {
-        console.error('Error accepting proposal:', err);
         const msg = err.error?.error || 'Failed to accept bid';
         alert(`API Error: ${msg}`);
       }
@@ -143,17 +153,23 @@ export class JobDetails {
       price: this.bidAmount(),
       message: this.bidMessage()
     }).subscribe({
-      next: () => {
+      next: (response) => {
         alert('Proposal submitted successfully!');
         this.showApplyForm.set(false);
         this.submittingProposal.set(false);
         this.hasApplied.set(true);
+        
+        if (response && response.proposal_id) {
+          this.appliedProposalId.set(response.proposal_id);
+        }
       },
       error: (err) => {
-        console.error('Error submitting proposal:', err);
         if (err.status === 409) {
           this.hasApplied.set(true);
           this.showApplyForm.set(false);
+          
+          // Re-fetch bids to get the ID if it's missing
+          this.fetchMyBids(currentJob.id);
           alert('You have already submitted a proposal for this job.');
         } else {
           alert(`Error: ${err.error?.error || 'Failed to submit proposal'}`);
@@ -163,6 +179,26 @@ export class JobDetails {
     });
   }
 
+  onWithdrawProposal(): void {
+    const proposalId = this.appliedProposalId();
+    const currentJob = this.job();
+    if (!proposalId || !currentJob) return;
+
+    if (confirm('Are you sure you want to withdraw your proposal?')) {
+      this.jobService.withdrawProposal(proposalId).subscribe({
+        next: () => {
+          alert('Proposal withdrawn successfully.');
+          this.hasApplied.set(false);
+          this.appliedProposalId.set(null);
+          this.fetchJobDetails(currentJob.id);
+        },
+        error: (err) => {
+          alert(`Error: ${err.error?.error || 'Failed to withdraw proposal'}`);
+        }
+      });
+    }
+  }
+
   onComplete(): void {
     const currentJob = this.job();
     if (!currentJob) return;
@@ -170,7 +206,6 @@ export class JobDetails {
     this.jobService.completeJob(currentJob.id).subscribe({
       next: () => this.job.update(j => j ? { ...j, status: JobStatus.COMPLETED } : null),
       error: (err) => {
-        console.error('Error completing job:', err);
         const msg = err.error?.error || 'Failed to complete job';
         alert(`API Error: ${msg}`);
       }

@@ -37,7 +37,7 @@ export class AlertService {
     const id = ++this.counter;
     this.alertsSignal.update(alerts => [...alerts, { id, type, message }]);
 
-    // Auto-dismiss after 5 seconds
+    // Auto-dismiss
     setTimeout(() => this.removeAlert(id), 5000);
   }
 

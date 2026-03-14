@@ -22,7 +22,7 @@ import { AuthService } from '../../../core/services/auth.service';
                      class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">Jobs</a>
                   <a routerLink="/jobs/my-postings" routerLinkActive="bg-gray-900 text-white" 
                      class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">My Postings</a>
-                  <a routerLink="/my-bids" routerLinkActive="bg-gray-900 text-white" 
+                  <a routerLink="/jobs/my-bids" routerLinkActive="bg-gray-900 text-white" 
                      class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">My Bids</a>
                 }
               </div>

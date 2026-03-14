@@ -41,7 +41,6 @@ export class MyPostings {
       error: (err) => {
         this.error.set('Failed to load your postings.');
         this.loading.set(false);
-        console.error('Error fetching my postings:', err);
       }
     });
   }

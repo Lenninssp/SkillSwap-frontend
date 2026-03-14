@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { JobService } from '../../../../core/services/job/job';
-import { JobCategory } from '../../../../core/enums/job-category.enum';
 
 @Component({
   selector: 'app-create-job',
@@ -15,8 +14,6 @@ export class CreateJob {
   private readonly jobService = inject(JobService);
   private readonly router = inject(Router);
 
-  categories = Object.values(JobCategory);
-  
   jobData = {
     title: signal(''),
     description: signal(''),
@@ -43,7 +40,13 @@ export class CreateJob {
     this.jobService.createJob(data).subscribe({
       next: (response) => {
         this.submitting.set(false);
-        this.router.navigate(['/jobs', response.id || '']);
+        // Handle different ID field names from API (id, job_id, _id)
+        const newId = response.id || response.job_id || response._id;
+        if (newId) {
+          this.router.navigate(['/jobs', newId]);
+        } else {
+          this.router.navigate(['/jobs']);
+        }
       },
       error: (err) => {
         this.error.set('Failed to create job. Please check your inputs.');

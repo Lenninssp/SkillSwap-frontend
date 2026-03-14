@@ -25,7 +25,7 @@ export class JobsSearch implements OnInit {
     maxBudget: signal<number | null>(null)
   };
 
-  // Modern way to handle filtering: it updates automatically when any signal inside changes!
+  // Reactive filtering
   filteredJobs = computed(() => {
     const title = this.filters.title().toLowerCase();
     const category = this.filters.category();
