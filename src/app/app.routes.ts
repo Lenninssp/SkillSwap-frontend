@@ -10,18 +10,19 @@ import { HomeComponent } from './features/home/home.component';
 import { RegisterComponent } from './features/register/register.component';
 import { LoginComponent } from './features/login/login.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'jobs', component: JobsSearch },
-  { path: 'jobs/create', component: CreateJob },
-  { path: 'jobs/my-postings', component: MyPostings },
-  { path: 'jobs/my-bids', component: MyBids },
-  { path: 'jobs/:id', component: JobDetails },
-  { path: 'jobs/:id/edit', component: EditJob },
-  { path: 'jobs/:id/review', component: SubmitReview },
+  { path: 'jobs/create', component: CreateJob, canActivate: [authGuard] },
+  { path: 'jobs/my-postings', component: MyPostings, canActivate: [authGuard] },
+  { path: 'jobs/my-bids', component: MyBids, canActivate: [authGuard] },
+  { path: 'jobs/:id', component: JobDetails }, // Details stay public, logic inside handles private parts
+  { path: 'jobs/:id/edit', component: EditJob, canActivate: [authGuard] },
+  { path: 'jobs/:id/review', component: SubmitReview, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'profile/:username', component: ProfileComponent },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
 ];

@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
-import { Review } from '../models/review.model';
-import { ApiError } from '../models/api-error.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,11 +10,11 @@ export class ReviewService {
   private readonly apiUrl = environment.apiUrl;
   private readonly http = inject(HttpClient);
 
-  getUserReviews(userId: string): Observable<Review[] | ApiError> {
-    return this.http.get<Review[]>(`${this.apiUrl}/reviews/user/${userId}`).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return of(err.error as ApiError);
-      })
-    );
+  submitReview(jobId: string, reviewData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/jobs/${jobId}/reviews`, reviewData);
+  }
+
+  getUserReviews(userId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reviews/user/${userId}`);
   }
 }

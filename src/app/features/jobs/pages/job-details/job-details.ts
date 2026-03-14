@@ -2,7 +2,7 @@ import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { JobService } from '../../../../core/services/job/job';
+import { JobService } from '../../../../core/services/job.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { Job } from '../../../../core/models/job.model';

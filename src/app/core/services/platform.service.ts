@@ -1,16 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
+import { PlatformStats } from '../models/platform-stats.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ReviewService {
+export class PlatformService {
   private readonly apiUrl = environment.apiUrl;
   private readonly http = inject(HttpClient);
 
-  submitReview(jobId: string, reviewData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/jobs/${jobId}/reviews`, reviewData);
+  getStats(): Observable<PlatformStats> {
+    return this.http.get<PlatformStats>(`${this.apiUrl}/platform/stats`);
   }
 }

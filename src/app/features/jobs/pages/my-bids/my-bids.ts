@@ -1,7 +1,7 @@
 import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { JobService } from '../../../../core/services/job/job';
+import { JobService } from '../../../../core/services/job.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Proposal } from '../../../../core/models/proposal.model';
 

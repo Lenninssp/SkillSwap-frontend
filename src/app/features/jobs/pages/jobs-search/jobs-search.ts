@@ -2,9 +2,10 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { JobService } from '../../../../core/services/job/job';
+import { JobService } from '../../../../core/services/job.service';
 import { Job } from '../../../../core/models/job.model';
 import { JobCategory } from '../../../../core/enums/job-category.enum';
+import { JobStatus } from '../../../../core/enums/job-status.enum';
 
 @Component({
   selector: 'app-jobs-search',
@@ -17,6 +18,7 @@ export class JobsSearch implements OnInit {
 
   allJobs = signal<Job[]>([]);
   categories = Object.values(JobCategory);
+  jobStatus = JobStatus;
   
   filters = {
     title: signal(''),

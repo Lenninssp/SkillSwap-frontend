@@ -26,10 +26,10 @@
         <div class="flex-1">
           <div class="flex items-center gap-3 mb-2">
             <span [ngClass]="{
-              'bg-blue-50 text-blue-700': bid.status === 'pending',
-              'bg-green-50 text-green-700': bid.status === 'accepted',
-              'bg-red-50 text-red-700': bid.status === 'rejected'
-            }" class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest border border-current opacity-70">
+              'bg-blue-50/50 text-blue-600 border-blue-100/50': bid.status === 'pending' || !bid.status,
+              'bg-green-50/50 text-green-600 border-green-100/50': bid.status === 'accepted',
+              'bg-red-50/50 text-red-600 border-red-100/50': bid.status === 'rejected'
+            }" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border">
               {{ bid.status || 'pending' }}
             </span>
             <span class="text-xs font-bold text-gray-400">Job ID: {{ bid.job_id.slice(-6) }}</span>

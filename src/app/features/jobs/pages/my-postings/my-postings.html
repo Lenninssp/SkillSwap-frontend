@@ -34,10 +34,10 @@
           <div class="flex justify-between items-start mb-4">
             <h3 class="text-xl font-bold text-gray-900 line-clamp-1">{{ job.title }}</h3>
             <span [ngClass]="{
-              'bg-green-100 text-green-700': job.status === jobStatus.OPEN,
-              'bg-yellow-100 text-yellow-700': job.status === jobStatus.IN_PROGRESS,
-              'bg-gray-100 text-gray-700': job.status === jobStatus.COMPLETED
-            }" class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+              'bg-green-50/50 text-green-600 border-green-100/50': job.status === jobStatus.OPEN,
+              'bg-yellow-50/50 text-yellow-600 border-yellow-100/50': job.status === jobStatus.IN_PROGRESS,
+              'bg-gray-50/50 text-gray-500 border-gray-100/50': job.status === jobStatus.COMPLETED
+            }" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border">
               {{ job.status }}
             </span>
           </div>

@@ -41,10 +41,10 @@
         <div class="flex items-center gap-2">
           <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Status:</span>
           <span [ngClass]="{
-            'bg-green-100 text-green-700': jobData.status === jobStatus.OPEN,
-            'bg-yellow-100 text-yellow-700': jobData.status === jobStatus.IN_PROGRESS,
-            'bg-gray-100 text-gray-700': jobData.status === jobStatus.COMPLETED
-          }" class="px-3 py-1 rounded-md text-xs font-bold uppercase">
+            'bg-green-50/50 text-green-600 border-green-100/50': jobData.status === jobStatus.OPEN,
+            'bg-yellow-50/50 text-yellow-600 border-yellow-100/50': jobData.status === jobStatus.IN_PROGRESS,
+            'bg-gray-50/50 text-gray-500 border-gray-100/50': jobData.status === jobStatus.COMPLETED
+          }" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border">
             {{ jobData.status }}
           </span>
         </div>
