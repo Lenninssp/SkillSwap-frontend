@@ -64,6 +64,7 @@
           </div>
         </div>
 
+        <!-- Show freelancer if assigned (even if status is inconsistent) -->
         @if (jobData.freelancer || jobData.freelancer_id) {
           <div class="bg-blue-50 rounded-xl p-6 flex items-center gap-4 border border-blue-100">
             <div class="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
@@ -76,6 +77,28 @@
                 <div class="flex items-center gap-1 mt-0.5">
                   <span class="text-yellow-500 text-sm">★</span>
                   <span class="text-sm font-medium text-gray-700">{{ jobData.freelancer?.rating_avg }} / 5</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Show reviews if they exist (even if status is not COMPLETED) -->
+        @if (jobData.reviews && jobData.reviews.length > 0) {
+          <div class="mt-4 border-t pt-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Job Reviews</h2>
+            <div class="space-y-4">
+              @for (review of jobData.reviews; track review.id) {
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="font-bold text-sm">{{ review.reviewer?.username || 'User' }}</span>
+                    <div class="text-yellow-500 text-xs">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <span>{{ star <= review.rating ? '★' : '☆' }}</span>
+                      }
+                    </div>
+                  </div>
+                  <p class="text-gray-600 text-sm italic">"{{ review.comment }}"</p>
                 </div>
               }
             </div>
@@ -105,12 +128,21 @@
           }
 
           @if (!isOwner() && jobData.status === jobStatus.OPEN) {
-            <button (click)="!hasApplied() && showApplyForm.set(true)"
-              [disabled]="hasApplied()"
-              [ngClass]="hasApplied() ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm'"
-              class="font-bold py-3 px-8 rounded-lg transition-colors">
-              {{ hasApplied() ? 'Applied' : 'Apply for this Job' }}
-            </button>
+            <div class="flex items-center gap-2">
+              <button (click)="!hasApplied() ? showApplyForm.set(true) : onApply()"
+                [disabled]="submittingProposal() || (hasApplied() && appliedProposalId() && appliedProposalId() !== 'EXISTING')"
+                [ngClass]="(hasApplied() && appliedProposalId() && appliedProposalId() !== 'EXISTING') ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm'"
+                class="font-bold py-3 px-8 rounded-lg transition-colors">
+                {{ hasApplied() ? 'Applied' : (submittingProposal() ? 'Checking...' : 'Apply for this Job') }}
+              </button>
+              
+              @if (hasApplied() && appliedProposalId() && appliedProposalId() !== 'EXISTING') {
+                <button (click)="onWithdrawProposal()"
+                  class="border border-red-200 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-all cursor-pointer">
+                  Withdraw
+                </button>
+              }
+            </div>
           }
 
           <button (click)="goBack()" 
@@ -162,7 +194,7 @@
             <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50 transition-colors">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="font-bold text-gray-900">{{ p.bidder?.username || 'Freelancer' }}</span>
+                  <span class="font-bold text-gray-900">{{ p.bidder?.username || 'Freelancer (' + p.freelancer_id.slice(-4) + ')' }}</span>
                   <span class="text-sm font-black text-green-600 tracking-tighter">${{ p.price }}</span>
                 </div>
                 <p class="text-gray-500 text-sm italic">"{{ p.message || p.cover_letter || 'No message provided' }}"</p>

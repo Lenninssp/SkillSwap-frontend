@@ -101,6 +101,4 @@ export class RegisterComponent {
     });
   }
 
-  // To avoid using "any" in subscribe, I used a type check above, 
-  // but I can refine the subscribe callback further if needed.
 }

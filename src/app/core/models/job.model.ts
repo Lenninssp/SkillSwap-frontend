@@ -24,4 +24,6 @@ export interface Job {
     name?: string;
     rating_avg?: number;
   }
+
+  reviews?: any[];
 }

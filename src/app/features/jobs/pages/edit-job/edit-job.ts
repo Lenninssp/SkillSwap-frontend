@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobService } from '../../../../core/services/job/job';
 import { AuthService } from '../../../../core/services/auth.service';
-import { JobCategory } from '../../../../core/enums/job-category.enum';
 
 @Component({
   selector: 'app-edit-job',
@@ -20,7 +19,6 @@ export class EditJob {
   private readonly location = inject(Location);
 
   jobId = signal<string | null>(null);
-  categories = Object.values(JobCategory);
   
   jobData = {
     title: '',
@@ -58,7 +56,7 @@ export class EditJob {
       next: (data) => {
         const job = Array.isArray(data) ? data[0] : data;
         
-        // Ownership check
+        // Owner check
         const user = this.authService.currentUser();
         if (user && String(job.owner_id) !== String(user.id)) {
           this.error.set('You are not authorized to edit this job.');

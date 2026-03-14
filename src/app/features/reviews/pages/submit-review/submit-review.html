@@ -55,12 +55,13 @@
       >
         {{ submitting() ? 'Submitting...' : 'Post Review' }}
       </button>
-      <a 
-        [routerLink]="['/jobs', jobId()]" 
-        class="text-center text-gray-500 font-semibold hover:text-gray-900 transition-colors"
+      <button 
+        type="button"
+        (click)="goBack()" 
+        class="text-center text-gray-500 font-semibold hover:text-gray-900 transition-colors cursor-pointer"
       >
         Go Back
-      </a>
+      </button>
     </div>
   </form>
 </div>
