@@ -57,4 +57,16 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-# SkillSwap-frontend
+## Demo Checklist
+
+- [ ] User A register
+- [ ] User A login
+- [ ] Post job
+- [ ] User B register
+- [ ] User B submit proposal
+- [ ] User A accept proposal
+- [ ] Job in_progress
+- [ ] Complete job
+- [ ] Both leave reviews
+- [ ] Rating updates
+
