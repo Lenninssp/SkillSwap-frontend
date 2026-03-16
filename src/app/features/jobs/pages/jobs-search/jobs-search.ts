@@ -17,7 +17,6 @@ export class JobsSearch implements OnInit {
   private readonly jobService = inject(JobService);
 
   allJobs = signal<Job[]>([]);
-  categories = Object.values(JobCategory);
   jobStatus = JobStatus;
   
   filters = {
@@ -30,13 +29,13 @@ export class JobsSearch implements OnInit {
   // Reactive filtering
   filteredJobs = computed(() => {
     const title = this.filters.title().toLowerCase();
-    const category = this.filters.category();
+    const category = this.filters.category().toLowerCase();
     const min = this.filters.minBudget();
     const max = this.filters.maxBudget();
 
     return this.allJobs().filter(job => {
       const matchTitle = !title || (job.title && job.title.toLowerCase().includes(title));
-      const matchCategory = !category || job.category === category;
+      const matchCategory = !category || (job.category && job.category.toLowerCase().includes(category));
       const matchMin = min === null || job.budget >= min;
       const matchMax = max === null || job.budget <= max;
       return matchTitle && matchCategory && matchMin && matchMax;
