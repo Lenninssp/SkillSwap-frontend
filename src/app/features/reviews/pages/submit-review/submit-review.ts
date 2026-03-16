@@ -10,7 +10,7 @@ import { Job } from '../../../../core/models/job.model';
 @Component({
   selector: 'app-submit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './submit-review.html',
 })
 export class SubmitReview {
